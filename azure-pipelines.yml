@@ -38,8 +38,8 @@ steps:
 # Publish build artifacts to Azure Pipelines or a Windows file share
 - task: PublishBuildArtifacts@1
   inputs:
-    pathToPublish: $(Build.ArtifactStagingDirectory)
-    artifactName: MyBuildOutputs
+    pathToPublish: $(System.ArtifactsDirectory)
+    artifactName: dropArtifact
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
     deploymentScope: 'Resource Group'
@@ -58,4 +58,4 @@ steps:
     azureSubscription: $(azureSubscription)
     appType: webAppLinux
     appName: $(appName)
-    package: $(Build.ArtifactStagingDirectory)/*.zip
+    package: $(System.ArtifactsDirectory)/**/*.zip
