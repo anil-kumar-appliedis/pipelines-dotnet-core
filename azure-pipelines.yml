@@ -13,7 +13,7 @@ variables:
   buildConfiguration: 'Release'
   # Azure service connection established during pipeline creation
   azureSubscription: AzureRmPipeline-conn
-  appName: avvaruapp
+  appName: avvaruprojWebApp
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
@@ -40,6 +40,19 @@ steps:
   inputs:
     pathToPublish: $(Build.ArtifactStagingDirectory)
     artifactName: MyBuildOutputs
+- task: AzureResourceManagerTemplateDeployment@3
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: $(azureSubscription)
+    subscriptionId: '9ff09445-7de7-4852-b924-6f22be074670'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: 'avvarurg'
+    location: 'Central US'
+    templateLocation: 'Linked artifact'
+    csmFile: 'CreateWebApp/azuredeploy.json'
+    overrideParameters: '-projectName avvaruproj -linkedTemplateUri https://raw.githubusercontent.com/anil-kumar-appliedis/pipelines-dotnet-core/master/CreateWebApp/linkedStorageAccount.json'
+    deploymentMode: 'Incremental'
+    deploymentName: 'DeployPipelineTemplate'
 - task: AzureWebApp@1 # Add this at the end of your file
   inputs:
     azureSubscription: $(azureSubscription)
