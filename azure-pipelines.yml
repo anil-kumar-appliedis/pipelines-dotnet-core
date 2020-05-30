@@ -19,4 +19,8 @@ steps:
     command: 'build'
     projects: |
       pipelines-dotnet-core.csproj
-  
+# Pack a NuGet package to a test directory
+- task: DotNetCoreCLI@2
+  inputs: 
+    command: 'pack'
+    outputDir: '$(Build.ArtifactStagingDirectory)'
