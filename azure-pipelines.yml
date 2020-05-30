@@ -11,6 +11,11 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  # Azure service connection established during pipeline creation
+  azureSubscription: AzureRmPipeline-conn
+  appName: avvaruapp
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
 
 steps:
 # Restore multiple projects
@@ -30,3 +35,14 @@ steps:
   inputs: 
     command: 'pack'
     outputDir: '$(Build.ArtifactStagingDirectory)'
+# Publish build artifacts to Azure Pipelines or a Windows file share
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: $(Build.ArtifactStagingDirectory)
+    artifactName: MyBuildOutputs
+- task: AzureWebApp@1 # Add this at the end of your file
+  inputs:
+    azureSubscription: $(azureSubscription)
+    appType: webAppLinux
+    appName: $(appName)
+    package: $(System.ArtifactsDirectory)/**/*.zip
