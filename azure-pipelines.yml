@@ -18,28 +18,24 @@ variables:
   vmImageName: 'ubuntu-latest'
 
 steps:
-# Restore multiple projects
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
-    projects: |
-      pipelines-dotnet-core.csproj
-# Build multiple projects
+    projects: 'pipelines-dotnet-core.csproj'
+    feedsToUse: 'config'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: |
-      pipelines-dotnet-core.csproj
-# Pack a NuGet package to a test directory
+    projects: 'pipelines-dotnet-core.csproj'
 - task: DotNetCoreCLI@2
-  inputs: 
-    command: 'pack'
-    outputDir: '$(Build.ArtifactStagingDirectory)'
-# Publish build artifacts to Azure Pipelines or a Windows file share
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
 - task: PublishBuildArtifacts@1
   inputs:
-    pathToPublish: $(System.ArtifactsDirectory)
-    artifactName: dropArtifact
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
     deploymentScope: 'Resource Group'
@@ -53,9 +49,9 @@ steps:
     overrideParameters: '-projectName avvaruproj -linkedTemplateUri https://raw.githubusercontent.com/anil-kumar-appliedis/pipelines-dotnet-core/master/CreateWebApp/linkedStorageAccount.json'
     deploymentMode: 'Incremental'
     deploymentName: 'DeployPipelineTemplate'
-- task: AzureWebApp@1 # Add this at the end of your file
+- task: AzureWebApp@1
   inputs:
-    azureSubscription: $(azureSubscription)
-    appType: webAppLinux
-    appName: $(appName)
-    package: $(System.ArtifactsDirectory)/**/*.zip
+    azureSubscription: 'AzureRmPipeline-conn'
+    appType: 'webAppLinux'
+    appName: 'avvaruprojWebApp'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
